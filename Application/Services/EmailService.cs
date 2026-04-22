@@ -1,10 +1,9 @@
-﻿using Domain.Interfaces;
+﻿using System.Net;
+using System.Net.Mail;
+using Domain.Interfaces;
 using Infrastructure.Email;
-using MailKit.Net.Smtp;
-using MailKit.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MimeKit;
 
 namespace Application.Services
 {
@@ -28,37 +27,30 @@ namespace Application.Services
         {
             try
             {
-                var email = new MimeMessage();
+                var email = new MailMessage();
 
-                email.From.Add(new MailboxAddress(_settings.DisplayName, _settings.From));
-                email.To.Add(MailboxAddress.Parse(to));
+                email.From = new MailAddress(_settings.From);
                 email.Subject = subject;
-
-                var builder = new BodyBuilder
-                {
-                    HtmlBody = htmlBody
-                };
+                email.To.Add(new MailAddress(to));
 
                 if (!string.IsNullOrEmpty(attachmentPath) &&
-                    File.Exists(attachmentPath))
+                  File.Exists(attachmentPath))
                 {
-                    builder.Attachments.Add(attachmentPath);
+                    email.Attachments.Add(new Attachment(attachmentPath));
                 }
 
-                email.Body = builder.ToMessageBody();
-                
-                using var smtp = new SmtpClient();
-                await smtp.ConnectAsync(
-                    _settings.Host,
-                    _settings.Port,
-                    SecureSocketOptions.StartTls);
+                email.Body = htmlBody;
+                email.IsBodyHtml = true;
 
-                await smtp.AuthenticateAsync(
-                    _settings.Username,
-                    _settings.Password);
-
-                await smtp.SendAsync(email);
-                await smtp.DisconnectAsync(true);
+                using (var smtp = new SmtpClient())
+                {
+                    smtp.Port = _settings.Port;
+                    smtp.Host = _settings.Host;
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new NetworkCredential(_settings.From, _settings.Password);
+                    //smtp.Send(email);
+                    await smtp.SendMailAsync(email);
+                }
 
                 _logger.LogInformation("Email sent successfully to {Email}", to);
             }
