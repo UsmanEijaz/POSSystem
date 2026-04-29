@@ -1,5 +1,5 @@
-﻿using Application.Services;
-using Domain.Entities;
+﻿using Application.DTO;
+using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -16,7 +16,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Order order)
+        public async Task<IActionResult> Create(OrderRequest order)
         {
             var result = await _service.CreateOrder(order);
             return Ok(result);

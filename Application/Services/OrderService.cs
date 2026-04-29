@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Application.DTO;
 using Domain.Entities;
 using Domain.Interfaces;
 
@@ -14,7 +15,7 @@ namespace Application.Services
             _emailService = emailService;
         }
 
-        public async Task<Order> CreateOrder(Order order)
+        public async Task<Order> CreateOrder(OrderRequest order)
         {
             order.OrderNumber = GenerateOrderNumber();
 
@@ -22,12 +23,13 @@ namespace Application.Services
 
             string slip = GenerateSlip(saved);
 
-            await _emailService.SendEmailAsync(saved.Email,
+            await _emailService.SendEmailAsync(saved.CustomerEmail,
                 "Order Confirmation",
                 $"<h2>Order #{order.OrderNumber}</h2><p>Thank you for shopping!</p>",
                 slip);
 
-            return saved;
+            //return saved;
+            return null;
         }
 
         private string GenerateOrderNumber()
@@ -35,7 +37,7 @@ namespace Application.Services
             return "ORD-" + DateTime.UtcNow.Ticks;
         }
 
-        private string GenerateSlip(Order order)
+        private string GenerateSlip(OrderResponseDto order)
         {
             var sb = new StringBuilder();
 
