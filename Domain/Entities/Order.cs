@@ -1,5 +1,4 @@
-﻿
-namespace Domain.Entities
+﻿namespace Domain.Entities
 {
     public class Order
     {
@@ -14,6 +13,10 @@ namespace Domain.Entities
         public long CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public long? ModifiedBy { get; set; }
-        public List<OrderItem> Items { get; set; }
+        
+        public long CustomerId { get; set; }
+
+        public Customer Customer { get; set; } = null!;
+        public List<OrderItem> OrderItems { get; set; }
     }
 }

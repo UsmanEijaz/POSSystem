@@ -43,7 +43,7 @@ namespace Application.Services
             sb.AppendLine($"Customer: {order.CustomerName}");
             sb.AppendLine("Items:");
 
-            foreach (var item in order.Items)
+            foreach (var item in order.OrderItems)
                 sb.AppendLine($"{item.ProductName} x{item.Quantity}");
 
             sb.AppendLine($"Total: {order.TotalAmount}");
